@@ -2,6 +2,7 @@ package com.xeecos.mitimelapse;
 
 import android.accessibilityservice.AccessibilityService;
 import android.accessibilityservice.AccessibilityServiceInfo;
+import android.graphics.Rect;
 import android.util.Log;
 import android.view.accessibility.AccessibilityEvent;
 import android.view.accessibility.AccessibilityNodeInfo;
@@ -30,31 +31,68 @@ public class MiCameraService extends AccessibilityService {
     public void onAccessibilityEvent(AccessibilityEvent event) {
         int eventType = event.getEventType();
         String className = event.getClassName().toString();
-        Log.d("tag",className+":"+eventType);
-        AccessibilityNodeInfo nodeInfo = getRootInActiveWindow();
-//        List<AccessibilityNodeInfo> infos =  nodeInfo.findAccessibilityNodeInfosByViewId("shutter_button");
-//        if(infos!=null) {
-//            for (AccessibilityNodeInfo node : infos) {
-//                Log.d("tag", "class:" + node.getClassName().toString());
+        //AccessibilityNodeInfo nodeInfo = getRootInActiveWindow();
+
+//        Log.d("tag",className+":"+event.getPackageName().toString());
+//        if(source!=null) {
+//            List<AccessibilityNodeInfo> infos = source.findAccessibilityNodeInfosByViewId("shutter_button");
+//            if (infos != null) {
+//                for (AccessibilityNodeInfo node : infos) {
+//                    Log.d("tag", "class:" + node.getClassName().toString());
+//                }
 //            }
 //        }
         switch (eventType) {
             case AccessibilityEvent.TYPE_NOTIFICATION_STATE_CHANGED:
                 break;
+            case AccessibilityEvent.TYPE_VIEW_CLICKED:
+                //界面点击
+
+//                    AccessibilityNodeInfo nodeInfo2 = getRootInActiveWindow();
+//
+//                    recycle(nodeInfo2);
+
+                Log.d("tag", "click view");
+                break;
             case AccessibilityEvent.TYPE_WINDOW_STATE_CHANGED:
-            case AccessibilityEvent.TYPE_WINDOW_CONTENT_CHANGED:
-                if (nodeInfo != null) {
-                    recycle(nodeInfo);
+                AccessibilityNodeInfo source = event.getSource();
+                List<AccessibilityNodeInfo> infos = source.findAccessibilityNodeInfosByText("拍摄");
+                if (infos != null) {
+                    for (AccessibilityNodeInfo node : infos) {
+                        Log.d("tag", "class:" + node.getClassName().toString());
+                        node.performAction(AccessibilityNodeInfo.ACTION_LONG_CLICK);
+                    }
                 }
+                break;
+            case AccessibilityEvent.TYPE_WINDOW_CONTENT_CHANGED:
+
+
+//                recycle(source);
                 break;
         }
     }
     public AccessibilityNodeInfo recycle(AccessibilityNodeInfo node) {
 
+        if (node == null) {
+            return null;
+        }
+        if (node.getClassName().toString().equals( "android.widget.TextView")) {
+            if(node.getText()==null){
+//                node.performAction(AccessibilityNodeInfo.ACTION_CLICK);
+            }
+//            Log.d("tag", "text:" + node.getText());
+        }else{
 
-        Log.d("tag", "text:"+node.getClassName());
+        }
+
         if (node.getChildCount() == 0) {
-
+            if(node.getContentDescription()!=null) {
+                Log.d("tag", "text:" + node.getContentDescription().toString()+" class:"+node.getClassName());
+                if (node.getContentDescription().toString().equals("拍摄")&&node.isClickable()&&node.isEnabled()) {
+                    node.performAction(AccessibilityNodeInfo.ACTION_CLICK);
+                    return null;
+                }
+            }
         } else {
             for (int i = 0; i < node.getChildCount(); i++) {
                 if (node.getChild(i) != null) {
