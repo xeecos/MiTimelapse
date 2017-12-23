@@ -27,23 +27,29 @@ public class MainActivity extends AppCompatActivity {
 //                Uri.fromFile(photo));
 
 
-//        Intent mIntent = new Intent();
+
+    }
+
+    public void onClickCamera(View v) {
+
+        Intent mIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
 //        ComponentName comp = new ComponentName(
 //
 //                "com.android.camera",
 //                "com.android.camera.Camera");
 //        mIntent.setComponent(comp);
-//
-//        startActivity(mIntent);
 
-    }
-
-    public void onClickCamera(View v) {
-        startActivity(getPackageManager().getLaunchIntentForPackage("com.android.camera"));
+        startActivityForResult(mIntent,1);
+//        startActivity(getPackageManager().getLaunchIntentForPackage("com.android.camera"));
 
     }
     public void onClick(View v) {
         Intent intent = new Intent(Settings.ACTION_ACCESSIBILITY_SETTINGS);
         startActivity(intent);
     }
+    @Override protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+
+    }
+
 }

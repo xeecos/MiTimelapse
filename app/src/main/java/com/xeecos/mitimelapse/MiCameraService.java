@@ -70,7 +70,7 @@ public class MiCameraService extends AccessibilityService {
                     }
                 }
 //                AccessibilityNodeInfo source = event.getSource();
-//                recycle(source);
+                recycle(source);
 
 //                recycle(source);
                 break;
