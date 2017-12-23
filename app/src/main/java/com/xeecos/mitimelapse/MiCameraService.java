@@ -2,8 +2,13 @@ package com.xeecos.mitimelapse;
 
 import android.accessibilityservice.AccessibilityService;
 import android.accessibilityservice.AccessibilityServiceInfo;
+import android.accessibilityservice.GestureDescription;
+import android.content.Context;
+import android.graphics.Path;
 import android.graphics.Rect;
+import android.util.DisplayMetrics;
 import android.util.Log;
+import android.view.KeyEvent;
 import android.view.accessibility.AccessibilityEvent;
 import android.view.accessibility.AccessibilityNodeInfo;
 
@@ -15,6 +20,7 @@ import java.util.List;
 
 public class MiCameraService extends AccessibilityService {
 
+    private int isCapturing = 0;
     @Override
     public void onInterrupt() {  }
     @Override
@@ -58,53 +64,79 @@ public class MiCameraService extends AccessibilityService {
 
 //                break;
             case AccessibilityEvent.TYPE_WINDOW_CONTENT_CHANGED:
+
                 AccessibilityNodeInfo source = event.getSource();
-                List<AccessibilityNodeInfo> infos = source.findAccessibilityNodeInfosByText("start_capture");//findAccessibilityNodeInfosByText("拍摄");
+                List<AccessibilityNodeInfo> infos = source.findAccessibilityNodeInfosByText("拍摄");
                 if (infos != null) {
-                    for (AccessibilityNodeInfo node : infos) {
-                        if(node.getContentDescription()!=null) {
-                            Log.d("tag", "text:" + node.getContentDescription().toString());
+                    if(infos.size()>0){
+                        try {
+                            recycle(source);
+                        } catch (InterruptedException e) {
+                            e.printStackTrace();
                         }
-                        Log.d("tag", "class:" + node.getClassName().toString());
-//                        node.performAction(AccessibilityNodeInfo.ACTION_LONG_CLICK);
                     }
                 }
-//                AccessibilityNodeInfo source = event.getSource();
-                recycle(source);
-
-//                recycle(source);
                 break;
         }
     }
-    public AccessibilityNodeInfo recycle(AccessibilityNodeInfo node) {
+    private void onCapture(int time){
+        if(isCapturing==1){
+            return;
+        }
+        isCapturing = 1;
+        DisplayMetrics displayMetrics = getResources().getDisplayMetrics();
+        int middleYValue = displayMetrics.heightPixels * 7 / 8;
+        Log.d("tag","height:"+displayMetrics.heightPixels);
+        final int leftSideOfScreen = displayMetrics.widthPixels / 2-1;
+        final int rightSizeOfScreen = leftSideOfScreen +1;
+        GestureDescription.Builder gestureBuilder = new GestureDescription.Builder();
+        Path path = new Path();
+        path.moveTo(rightSizeOfScreen, middleYValue);
+
+
+        gestureBuilder.addStroke(new GestureDescription.StrokeDescription(path, 0, 1));
+        final MiCameraService self = this;
+        final int s = time;
+        dispatchGesture(gestureBuilder.build(), new GestureResultCallback() {
+            @Override
+            public void onCompleted(GestureDescription gestureDescription) {
+                Log.d("tag","Gesture Completed");
+                super.onCompleted(gestureDescription);
+                self.back(s);
+
+            }
+        }, null);
+    }
+    private void back(int s){
+
+        try {
+            performGlobalAction(AccessibilityService.GLOBAL_ACTION_BACK);
+            Thread.sleep(s*1000);
+            Log.d("tag","seconds:"+s);
+            isCapturing = 0;
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+    }
+    public AccessibilityNodeInfo recycle(AccessibilityNodeInfo node) throws InterruptedException {
 
         if (node == null) {
             return null;
         }
-        if (node.getClassName().toString().equals( "android.widget.TextView")) {
-            if(node.getText()==null){
-//                node.performAction(AccessibilityNodeInfo.ACTION_CLICK);
-            }
-//            Log.d("tag", "text:" + node.getText());
-        }else{
-
-        }
-        if(node.getContentDescription()!=null) {
-            Log.d("tag", "text:" + node.getContentDescription().toString() + " clickable:" + node.isClickable());
-            if (node.getContentDescription().toString().equals("拍摄") && node.isClickable() && node.isEnabled()) {
-                Log.d("tag", "click:" + node.getContentDescription().toString() + " class:" + node.getClassName());
-                node.performAction(AccessibilityNodeInfo.ACTION_CLICK);
-//                return null;
-            }
-            List<AccessibilityNodeInfo.AccessibilityAction> infos = node.getActionList();
-            if (infos != null) {
-                for (AccessibilityNodeInfo.AccessibilityAction a : infos) {
-                    Log.d("tag", "action:" + a.getClass().toString());
-                }
-            }
-        }
         if (node.getChildCount() == 0) {
-
+//            if (node.getClassName().toString().equals("android.widget.TextView")) {
+                if(node.getText()==null){
+//                node.performAction(AccessibilityNodeInfo.ACTION_CLICK);
+                }else {
+                    Log.d("tag", "text:" + node.getText());
+                    String str  = node.getText().toString();
+                    if(str.contains("秒")){
+                        String ss=str.substring(0,str.indexOf("秒"));
+                        int s = Integer.parseInt(ss);
+                        onCapture(s);
+                    }
+                }
+//            }
         } else {
             for (int i = 0; i < node.getChildCount(); i++) {
                 if (node.getChild(i) != null) {
@@ -115,4 +147,9 @@ public class MiCameraService extends AccessibilityService {
         return node;
     }
 
+    @Override
+    protected boolean onKeyEvent(KeyEvent event) {
+    Log.d("tag","getKeyCode:"+event.getKeyCode());
+        return super.onKeyEvent(event);
+    }
 }

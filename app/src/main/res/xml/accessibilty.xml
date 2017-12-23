@@ -6,5 +6,7 @@
     android:canRequestEnhancedWebAccessibility="true"
     android:canRequestFilterKeyEvents="true"
     android:canRequestTouchExplorationMode="true"
+    android:canPerformGestures="true"
+    android:packageNames="com.android.camera"
     android:canRetrieveWindowContent="true"
     android:notificationTimeout="0" />
