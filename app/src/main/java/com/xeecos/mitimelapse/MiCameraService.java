@@ -55,17 +55,22 @@ public class MiCameraService extends AccessibilityService {
                 Log.d("tag", "click view");
                 break;
             case AccessibilityEvent.TYPE_WINDOW_STATE_CHANGED:
+
+//                break;
+            case AccessibilityEvent.TYPE_WINDOW_CONTENT_CHANGED:
                 AccessibilityNodeInfo source = event.getSource();
-                List<AccessibilityNodeInfo> infos = source.findAccessibilityNodeInfosByText("拍摄");
+                List<AccessibilityNodeInfo> infos = source.findAccessibilityNodeInfosByText("start_capture");//findAccessibilityNodeInfosByText("拍摄");
                 if (infos != null) {
                     for (AccessibilityNodeInfo node : infos) {
+                        if(node.getContentDescription()!=null) {
+                            Log.d("tag", "text:" + node.getContentDescription().toString());
+                        }
                         Log.d("tag", "class:" + node.getClassName().toString());
-                        node.performAction(AccessibilityNodeInfo.ACTION_LONG_CLICK);
+//                        node.performAction(AccessibilityNodeInfo.ACTION_LONG_CLICK);
                     }
                 }
-                break;
-            case AccessibilityEvent.TYPE_WINDOW_CONTENT_CHANGED:
-
+//                AccessibilityNodeInfo source = event.getSource();
+//                recycle(source);
 
 //                recycle(source);
                 break;
@@ -84,15 +89,22 @@ public class MiCameraService extends AccessibilityService {
         }else{
 
         }
-
-        if (node.getChildCount() == 0) {
-            if(node.getContentDescription()!=null) {
-                Log.d("tag", "text:" + node.getContentDescription().toString()+" class:"+node.getClassName());
-                if (node.getContentDescription().toString().equals("拍摄")&&node.isClickable()&&node.isEnabled()) {
-                    node.performAction(AccessibilityNodeInfo.ACTION_CLICK);
-                    return null;
+        if(node.getContentDescription()!=null) {
+            Log.d("tag", "text:" + node.getContentDescription().toString() + " clickable:" + node.isClickable());
+            if (node.getContentDescription().toString().equals("拍摄") && node.isClickable() && node.isEnabled()) {
+                Log.d("tag", "click:" + node.getContentDescription().toString() + " class:" + node.getClassName());
+                node.performAction(AccessibilityNodeInfo.ACTION_CLICK);
+//                return null;
+            }
+            List<AccessibilityNodeInfo.AccessibilityAction> infos = node.getActionList();
+            if (infos != null) {
+                for (AccessibilityNodeInfo.AccessibilityAction a : infos) {
+                    Log.d("tag", "action:" + a.getClass().toString());
                 }
             }
+        }
+        if (node.getChildCount() == 0) {
+
         } else {
             for (int i = 0; i < node.getChildCount(); i++) {
                 if (node.getChild(i) != null) {
