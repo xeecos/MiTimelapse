@@ -66,16 +66,21 @@ public class MiCameraService extends AccessibilityService {
             case AccessibilityEvent.TYPE_WINDOW_CONTENT_CHANGED:
 
                 AccessibilityNodeInfo source = event.getSource();
-                List<AccessibilityNodeInfo> infos = source.findAccessibilityNodeInfosByText("拍摄");
-                if (infos != null) {
-                    if(infos.size()>0){
-                        try {
-                            recycle(source);
-                        } catch (InterruptedException e) {
-                            e.printStackTrace();
-                        }
-                    }
+                try {
+                    recycle(source);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
                 }
+//                List<AccessibilityNodeInfo> infos = source.findAccessibilityNodeInfosByText("拍摄");
+//                if (infos != null) {
+//                    if(infos.size()>0){
+//                        try {
+//                            recycle(source);
+//                        } catch (InterruptedException e) {
+//                            e.printStackTrace();
+//                        }
+//                    }
+//                }
                 break;
         }
     }
@@ -85,38 +90,46 @@ public class MiCameraService extends AccessibilityService {
         }
         isCapturing = 1;
         DisplayMetrics displayMetrics = getResources().getDisplayMetrics();
-        int middleYValue = displayMetrics.heightPixels * 7 / 8;
         Log.d("tag","height:"+displayMetrics.heightPixels);
-        final int leftSideOfScreen = displayMetrics.widthPixels / 2-1;
-        final int rightSizeOfScreen = leftSideOfScreen +1;
+        final int bottomY = displayMetrics.heightPixels * 7 / 8;
+        final int centerX = displayMetrics.widthPixels / 2;
+        final int centerY = displayMetrics.heightPixels / 2;
+        clickScreen(centerX,centerY);
+        new android.os.Handler().postDelayed(
+                new Runnable() {
+                    public void run() {
+                        clickScreen(centerX,bottomY);
+                    }
+                },
+                50);
+        final MiCameraService self = this;
+        new android.os.Handler().postDelayed(
+                new Runnable() {
+                    public void run() {
+                        self.back();
+                    }
+                },
+                time*1000+600);
+        Log.d("tag","seconds:"+time);
+    }
+    private void clickScreen(int x,int y){
+
+
         GestureDescription.Builder gestureBuilder = new GestureDescription.Builder();
         Path path = new Path();
-        path.moveTo(rightSizeOfScreen, middleYValue);
-
-
-        gestureBuilder.addStroke(new GestureDescription.StrokeDescription(path, 0, 1));
-        final MiCameraService self = this;
-        final int s = time;
+        path.moveTo(x, y);
+        gestureBuilder.addStroke(new GestureDescription.StrokeDescription(path, 0, 10));
         dispatchGesture(gestureBuilder.build(), new GestureResultCallback() {
             @Override
             public void onCompleted(GestureDescription gestureDescription) {
                 Log.d("tag","Gesture Completed");
                 super.onCompleted(gestureDescription);
-                self.back(s);
-
             }
         }, null);
     }
-    private void back(int s){
-
-        try {
-            performGlobalAction(AccessibilityService.GLOBAL_ACTION_BACK);
-            Thread.sleep(s*1000);
-            Log.d("tag","seconds:"+s);
-            isCapturing = 0;
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
+    private void back() {
+        isCapturing = 0;
+        performGlobalAction(AccessibilityService.GLOBAL_ACTION_BACK);
     }
     public AccessibilityNodeInfo recycle(AccessibilityNodeInfo node) throws InterruptedException {
 
@@ -127,13 +140,30 @@ public class MiCameraService extends AccessibilityService {
 //            if (node.getClassName().toString().equals("android.widget.TextView")) {
                 if(node.getText()==null){
 //                node.performAction(AccessibilityNodeInfo.ACTION_CLICK);
+                    if(node.getContentDescription()!=null){
+                        Log.d("tag", "desc:" + node.getContentDescription());
+                        if(node.getContentDescription().equals("拍摄")) {
+                            node.performAction(AccessibilityNodeInfo.ACTION_CLICK);
+                        }
+                    }
                 }else {
                     Log.d("tag", "text:" + node.getText());
-                    String str  = node.getText().toString();
+                    final String str  = node.getText().toString();
                     if(str.contains("秒")){
-                        String ss=str.substring(0,str.indexOf("秒"));
-                        int s = Integer.parseInt(ss);
-                        onCapture(s);
+                        new android.os.Handler().postDelayed(
+                                new Runnable() {
+                                    public void run() {
+                                        String ss=str.substring(0,str.indexOf("秒"));
+                                        try {
+                                            int s = Integer.parseInt(ss);
+                                            onCapture(s);
+                                        }catch (Exception e){
+                                            onCapture(1);
+                                        }
+                                    }
+                                },
+                               500);
+                        return null;
                     }
                 }
 //            }
