@@ -12,7 +12,10 @@ import android.view.KeyEvent;
 import android.view.accessibility.AccessibilityEvent;
 import android.view.accessibility.AccessibilityNodeInfo;
 
+import java.lang.invoke.MethodHandle;
+import java.lang.reflect.Method;
 import java.util.List;
+import java.util.function.Function;
 
 /**
  * Created by indream on 2017/12/21.
@@ -37,27 +40,10 @@ public class MiCameraService extends AccessibilityService {
     public void onAccessibilityEvent(AccessibilityEvent event) {
         int eventType = event.getEventType();
         String className = event.getClassName().toString();
-        //AccessibilityNodeInfo nodeInfo = getRootInActiveWindow();
-
-//        Log.d("tag",className+":"+event.getPackageName().toString());
-//        if(source!=null) {
-//            List<AccessibilityNodeInfo> infos = source.findAccessibilityNodeInfosByViewId("shutter_button");
-//            if (infos != null) {
-//                for (AccessibilityNodeInfo node : infos) {
-//                    Log.d("tag", "class:" + node.getClassName().toString());
-//                }
-//            }
-//        }
         switch (eventType) {
             case AccessibilityEvent.TYPE_NOTIFICATION_STATE_CHANGED:
                 break;
             case AccessibilityEvent.TYPE_VIEW_CLICKED:
-                //界面点击
-
-//                    AccessibilityNodeInfo nodeInfo2 = getRootInActiveWindow();
-//
-//                    recycle(nodeInfo2);
-
                 Log.d("tag", "click view");
                 break;
             case AccessibilityEvent.TYPE_WINDOW_STATE_CHANGED:
@@ -71,16 +57,6 @@ public class MiCameraService extends AccessibilityService {
                 } catch (InterruptedException e) {
                     e.printStackTrace();
                 }
-//                List<AccessibilityNodeInfo> infos = source.findAccessibilityNodeInfosByText("拍摄");
-//                if (infos != null) {
-//                    if(infos.size()>0){
-//                        try {
-//                            recycle(source);
-//                        } catch (InterruptedException e) {
-//                            e.printStackTrace();
-//                        }
-//                    }
-//                }
                 break;
         }
     }
@@ -94,27 +70,39 @@ public class MiCameraService extends AccessibilityService {
         final int bottomY = displayMetrics.heightPixels * 7 / 8;
         final int centerX = displayMetrics.widthPixels / 2;
         final int centerY = displayMetrics.heightPixels / 2;
-        clickScreen(centerX,centerY);
-        new android.os.Handler().postDelayed(
-                new Runnable() {
-                    public void run() {
-                        clickScreen(centerX,bottomY);
-                    }
-                },
-                50);
-        final MiCameraService self = this;
-        new android.os.Handler().postDelayed(
-                new Runnable() {
-                    public void run() {
-                        self.back();
-                    }
-                },
-                time*1000+600);
+        delayCall(0,new DelayInterface(){
+            @Override
+            public void callback() {
+                clickScreen(centerX,centerY);
+            }
+        });
+        delayCall(300,new DelayInterface(){
+            @Override
+            public void callback() {
+                clickScreen(centerX,bottomY);
+            }
+        });
+        delayCall(time * 1000 + 1000, new DelayInterface() {
+            @Override
+            public void callback() {
+                back();
+            }
+        });
         Log.d("tag","seconds:"+time);
     }
+    interface DelayInterface {
+        void callback();
+    }
+    private void delayCall(int time, final DelayInterface incc){
+        new android.os.Handler().postDelayed(
+                new Runnable() {
+                    public void run() {
+                        incc.callback();
+                    }
+                },
+                time);
+    }
     private void clickScreen(int x,int y){
-
-
         GestureDescription.Builder gestureBuilder = new GestureDescription.Builder();
         Path path = new Path();
         path.moveTo(x, y);
@@ -150,19 +138,18 @@ public class MiCameraService extends AccessibilityService {
                     Log.d("tag", "text:" + node.getText());
                     final String str  = node.getText().toString();
                     if(str.contains("秒")){
-                        new android.os.Handler().postDelayed(
-                                new Runnable() {
-                                    public void run() {
-                                        String ss=str.substring(0,str.indexOf("秒"));
-                                        try {
-                                            int s = Integer.parseInt(ss);
-                                            onCapture(s);
-                                        }catch (Exception e){
-                                            onCapture(1);
-                                        }
-                                    }
-                                },
-                               500);
+                        delayCall(1000, new DelayInterface() {
+                            @Override
+                            public void callback() {
+                                String ss=str.substring(0,str.indexOf("秒"));
+                                try {
+                                    int s = Integer.parseInt(ss);
+                                    onCapture(s);
+                                }catch (Exception e){
+                                    onCapture(1);
+                                }
+                            }
+                        });
                         return null;
                     }
                 }

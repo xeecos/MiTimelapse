@@ -4,6 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:textAlignment="center"
     tools:context="com.xeecos.mitimelapse.MainActivity">
 
     <Button
@@ -12,10 +13,11 @@
         android:layout_height="48dp"
         android:layout_marginEnd="8dp"
         android:layout_marginStart="8dp"
-        android:layout_marginTop="71dp"
+        android:layout_marginTop="68dp"
         android:onClick="onClickSetting"
         android:text="Setting"
-        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintEnd_toStartOf="@+id/button4"
+        app:layout_constraintHorizontal_bias="0.393"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
@@ -23,14 +25,12 @@
         android:id="@+id/button2"
         android:layout_width="88dp"
         android:layout_height="48dp"
-        android:layout_marginEnd="8dp"
-        android:layout_marginStart="8dp"
-        android:layout_marginTop="32dp"
+        android:layout_marginStart="60dp"
+        android:layout_marginTop="148dp"
         android:onClick="onClickTest"
         android:text="Test"
-        app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/button" />
+        app:layout_constraintTop_toTopOf="parent" />
 
     <Button
         android:id="@+id/buttonStart"
@@ -39,8 +39,8 @@
         android:layout_marginBottom="52dp"
         android:layout_marginEnd="8dp"
         android:layout_marginStart="8dp"
-        android:text="Start"
         android:onClick="onClickStart"
+        android:text="Start"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent" />
@@ -55,6 +55,7 @@
         android:entries="@array/frame_arrays"
         android:prompt="@string/frames_prompt"
         android:spinnerMode="dialog"
+        android:textAlignment="center"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.502"
@@ -70,6 +71,7 @@
         android:entries="@array/delay_arrays"
         android:prompt="@string/delay_prompt"
         android:spinnerMode="dialog"
+        android:textAlignment="center"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.502"
@@ -94,5 +96,43 @@
         android:text="Frames:"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent" />
+
+    <Button
+        android:id="@+id/button3"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="8dp"
+        android:layout_marginStart="8dp"
+        android:layout_marginTop="148dp"
+        android:onClick="onClickCombine"
+        android:text="Combine"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.606"
+        app:layout_constraintStart_toEndOf="@+id/button2"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <TextView
+        android:id="@+id/textView"
+        android:layout_width="139dp"
+        android:layout_height="26dp"
+        android:layout_marginBottom="128dp"
+        android:layout_marginEnd="8dp"
+        android:layout_marginStart="8dp"
+        android:text=" "
+        android:textAlignment="center"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent" />
+
+    <Button
+        android:id="@+id/button4"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="60dp"
+        android:layout_marginTop="68dp"
+        android:onClick="onClickOpen"
+        android:text="Open"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
 
 </android.support.constraint.ConstraintLayout>
