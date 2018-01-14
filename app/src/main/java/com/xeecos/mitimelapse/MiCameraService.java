@@ -40,55 +40,51 @@ public class MiCameraService extends AccessibilityService {
     public void onAccessibilityEvent(AccessibilityEvent event) {
         int eventType = event.getEventType();
         String className = event.getClassName().toString();
+        if(isCapturing ==1){
+            return;
+        }
+        Log.d("tag","service entered!");
+        AccessibilityNodeInfo source = event.getSource();
+        try {
+            recycle(source);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
         switch (eventType) {
             case AccessibilityEvent.TYPE_NOTIFICATION_STATE_CHANGED:
-                break;
             case AccessibilityEvent.TYPE_VIEW_CLICKED:
-                Log.d("tag", "click view");
-                break;
             case AccessibilityEvent.TYPE_WINDOW_STATE_CHANGED:
-
-//                break;
             case AccessibilityEvent.TYPE_WINDOW_CONTENT_CHANGED:
+//                final AccessibilityEvent evt = event;
 
-                AccessibilityNodeInfo source = event.getSource();
-                try {
-                    recycle(source);
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
                 break;
         }
     }
     private void onCapture(int time){
-        if(isCapturing==1){
-            return;
-        }
-        isCapturing = 1;
         DisplayMetrics displayMetrics = getResources().getDisplayMetrics();
         Log.d("tag","height:"+displayMetrics.heightPixels);
         final int bottomY = displayMetrics.heightPixels * 7 / 8;
         final int centerX = displayMetrics.widthPixels / 2;
         final int centerY = displayMetrics.heightPixels / 2;
-        delayCall(0,new DelayInterface(){
+        delayCall(100,new DelayInterface(){
             @Override
             public void callback() {
                 clickScreen(centerX,centerY);
             }
         });
-        delayCall(300,new DelayInterface(){
+        delayCall(200,new DelayInterface(){
             @Override
             public void callback() {
                 clickScreen(centerX,bottomY);
             }
         });
-        delayCall(time * 1000 + 1000, new DelayInterface() {
+        delayCall(time * 1000 + 2000, new DelayInterface() {
             @Override
             public void callback() {
                 back();
             }
         });
-        Log.d("tag","seconds:"+time);
+       Log.d("tag","seconds:"+time);
     }
     interface DelayInterface {
         void callback();
@@ -106,11 +102,12 @@ public class MiCameraService extends AccessibilityService {
         GestureDescription.Builder gestureBuilder = new GestureDescription.Builder();
         Path path = new Path();
         path.moveTo(x, y);
+        Log.d("tag","click:"+x+":"+y);
         gestureBuilder.addStroke(new GestureDescription.StrokeDescription(path, 0, 10));
         dispatchGesture(gestureBuilder.build(), new GestureResultCallback() {
             @Override
             public void onCompleted(GestureDescription gestureDescription) {
-                Log.d("tag","Gesture Completed");
+//                Log.i("tag","Gesture Completed");
                 super.onCompleted(gestureDescription);
             }
         }, null);
@@ -125,20 +122,20 @@ public class MiCameraService extends AccessibilityService {
             return null;
         }
         if (node.getChildCount() == 0) {
-//            if (node.getClassName().toString().equals("android.widget.TextView")) {
                 if(node.getText()==null){
 //                node.performAction(AccessibilityNodeInfo.ACTION_CLICK);
                     if(node.getContentDescription()!=null){
                         Log.d("tag", "desc:" + node.getContentDescription());
-                        if(node.getContentDescription().equals("拍摄")) {
-                            node.performAction(AccessibilityNodeInfo.ACTION_CLICK);
-                        }
+//                        if(node.getContentDescription().equals("拍摄")) {
+//                            node.performAction(AccessibilityNodeInfo.ACTION_CLICK);
+//                        }
                     }
                 }else {
                     Log.d("tag", "text:" + node.getText());
                     final String str  = node.getText().toString();
                     if(str.contains("秒")){
-                        delayCall(1000, new DelayInterface() {
+                        isCapturing = 1;
+                        delayCall(500, new DelayInterface() {
                             @Override
                             public void callback() {
                                 String ss=str.substring(0,str.indexOf("秒"));
@@ -153,7 +150,6 @@ public class MiCameraService extends AccessibilityService {
                         return null;
                     }
                 }
-//            }
         } else {
             for (int i = 0; i < node.getChildCount(); i++) {
                 if (node.getChild(i) != null) {
@@ -166,7 +162,6 @@ public class MiCameraService extends AccessibilityService {
 
     @Override
     protected boolean onKeyEvent(KeyEvent event) {
-    Log.d("tag","getKeyCode:"+event.getKeyCode());
         return super.onKeyEvent(event);
     }
 }

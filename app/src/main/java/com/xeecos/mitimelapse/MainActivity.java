@@ -84,8 +84,7 @@ public class MainActivity extends AppCompatActivity {
 
     public static void verifyStoragePermissions(Activity activity) {
         try {
-            int permission = ActivityCompat.checkSelfPermission(activity,
-                    "android.permission.WRITE_EXTERNAL_STORAGE");
+            int permission = ActivityCompat.checkSelfPermission(activity,"android.permission.WRITE_EXTERNAL_STORAGE");
             if (permission != PackageManager.PERMISSION_GRANTED) {
                 ActivityCompat.requestPermissions(activity, PERMISSIONS_STORAGE,REQUEST_EXTERNAL_STORAGE);
             }
@@ -144,7 +143,7 @@ public class MainActivity extends AppCompatActivity {
         Cursor cursor = contentResolver.query(uri, new String[]{MediaStore.Images.Media._ID, MediaStore.Images.Media.DATA}, MediaStore.Images.Media.MIME_TYPE + "=? OR " + MediaStore.Images.Media.MIME_TYPE + "=?", new String[] { "image/jpeg", "image/png" }, MediaStore.Images.Media._ID + " DESC");
         if (cursor == null || cursor.getCount() <= 0) {
 
-            Log.d("tag", "empty!");
+//            Log.i("tag", "empty!");
             return null; // 没有图片
         }
         while (cursor.moveToNext())
@@ -156,7 +155,7 @@ public class MainActivity extends AppCompatActivity {
                 if (file.exists()) {
                     if(result.size()<mFrames) {
                         result.add(path);
-                        Log.d("tag", path);
+//                        Log.i("tag", path);
                     }else{
                         break;
                     }
@@ -193,7 +192,7 @@ public class MainActivity extends AppCompatActivity {
             super.handleMessage(msg);
              TextView tv = findViewById(R.id.textView);
             tv.setText(msg.obj.toString());
-            Log.d("tag",msg.obj.toString());
+//            Log.i("tag",msg.obj.toString());
         }
 
     };
@@ -228,21 +227,21 @@ public class MainActivity extends AppCompatActivity {
                 int len = list.size();
                 for (int i = 0; i < len; i++) {
                     // Generate the image, for Android use Bitmap
-                    FileInputStream fis = new FileInputStream(list.get(i));
+                    FileInputStream fis = new FileInputStream(list.get(len-1-i));
                     Bitmap bitmap = scaleImage(BitmapFactory.decodeStream(fis), 1920, 1080);
                     int progress = (i + 1) * 100 / len;
                     sendMessage("processing:" + progress + "%");
                     encoder.encodeImage(bitmap);
-                    Log.d("tag", "end processing:" + (i + 1));
+//                    Log.i("tag", "end processing:" + (i + 1));
                 }
                 // Finalize the encoding, i.e. clear the buffers, write the header, etc.
                 encoder.finish();
                 } catch(FileNotFoundException e){
 
-                    Log.d("tag","FileNotFoundException!");
+//                    Log.i("tag","FileNotFoundException!");
                 } catch (IOException e) {
                     e.printStackTrace();
-                    Log.d("tag","IOException!");
+//                    Log.i("tag","IOException!");
                 } finally {
                     NIOUtils.closeQuietly(out);
                 }
@@ -260,7 +259,7 @@ public class MainActivity extends AppCompatActivity {
                                 startActivity(getPackageManager().getLaunchIntentForPackage("com.android.camera"));
                             }
                         }
-                    }, mDelay * 1000 + 500);
+                    }, mDelay * 1000 );
             TextView tv = findViewById(R.id.textView);
             tv.setText("total: "+mFrames+" capturing:"+(mFrames-mRestFrames));
         }
