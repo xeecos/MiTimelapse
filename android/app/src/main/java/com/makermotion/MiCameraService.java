@@ -33,19 +33,20 @@ public class MiCameraService extends AccessibilityService {
         serviceInfo.eventTypes = AccessibilityEvent.TYPES_ALL_MASK;
         serviceInfo.feedbackType = AccessibilityServiceInfo.FEEDBACK_GENERIC;
         serviceInfo.packageNames = new String[]{"com.android.camera"};
-        serviceInfo.notificationTimeout=100;
+        serviceInfo.notificationTimeout=1;
         setServiceInfo(serviceInfo);
     }
     @Override
     public void onAccessibilityEvent(AccessibilityEvent event) {
         int eventType = event.getEventType();
         String className = event.getClassName().toString();
-        if(isCapturing ==1){
-            return;
-        }
+        
         Log.d("tag","service entered!");
         AccessibilityNodeInfo source = event.getSource();
         try {
+            if(isCapturing ==1){
+                return;
+            }
             recycle(source);
         } catch (InterruptedException e) {
             e.printStackTrace();
@@ -66,19 +67,19 @@ public class MiCameraService extends AccessibilityService {
         final int bottomY = displayMetrics.heightPixels * 7 / 8;
         final int centerX = displayMetrics.widthPixels / 2;
         final int centerY = displayMetrics.heightPixels / 2;
-        delayCall(100,new DelayInterface(){
+        delayCall(10,new DelayInterface(){
             @Override
             public void callback() {
                 clickScreen(centerX,centerY);
             }
         });
-        delayCall(200,new DelayInterface(){
+        delayCall(50,new DelayInterface(){
             @Override
             public void callback() {
                 clickScreen(centerX,bottomY);
             }
         });
-        delayCall(time * 1000 + 2000, new DelayInterface() {
+        delayCall((time * 1000+800), new DelayInterface() {
             @Override
             public void callback() {
                 back();
@@ -135,18 +136,13 @@ public class MiCameraService extends AccessibilityService {
                     final String str  = node.getText().toString();
                     if(str.contains("秒")){
                         isCapturing = 1;
-                        delayCall(500, new DelayInterface() {
-                            @Override
-                            public void callback() {
-                                String ss=str.substring(0,str.indexOf("秒"));
-                                try {
-                                    int s = Integer.parseInt(ss);
-                                    onCapture(s);
-                                }catch (Exception e){
-                                    onCapture(1);
-                                }
-                            }
-                        });
+                        String ss=str.substring(0,str.indexOf("秒"));
+                        try {
+                            Integer s = Integer.parseInt(ss);
+                            onCapture(s);
+                        }catch (Exception e){
+                            onCapture(1);
+                        }
                         return null;
                     }
                 }
