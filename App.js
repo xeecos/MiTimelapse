@@ -10,7 +10,7 @@ import {
   StyleSheet,
   Text,
   Button, TextInput,
-  View, NativeModules, AppState
+  View, NativeModules, AppState, DeviceEventEmitter
 } from 'react-native';
 
 
@@ -22,12 +22,15 @@ export default class App extends Component {
       count: 100,
       rest: 100,
       capturing: false,
+      msg: 0,
       appState: AppState.currentState
     }
   }
   componentDidMount() {
-
-    AppState.addEventListener('change', this._handleAppStateChange);
+    var RNMiService = NativeModules.RNMiService;
+    RNMiService.requestStorage();
+    AppState.addEventListener('change', this._handleAppStateChange.bind(this));
+    DeviceEventEmitter.addListener('fromDevice', this._fromDevice.bind(this));
   }
 
   componentWillUnmount() {
@@ -44,6 +47,9 @@ export default class App extends Component {
     }
     this.state.appState = nextAppState;
   }
+  _fromDevice(str) {
+    this.setState({ msg: str });
+  }
   continueCapture() {
     if (this.state.rest > 0) {
       setTimeout((e => {
@@ -52,7 +58,7 @@ export default class App extends Component {
           RNMiService.capture();
         }
       }).bind(this), this.state.interval * 1000);
-      this.setState({ rest: this.state.rest - 1 });
+      this.setState({ msg: 0, rest: this.state.rest - 1 });
     } else {
       this.setState({ rest: 0, capturing: false });
     }
@@ -73,7 +79,7 @@ export default class App extends Component {
         >{this.state.interval}</TextInput>
         <TextInput
           style={{ width: 100, height: 40, borderColor: 'gray', borderWidth: 1 }}
-          onChangeText={(text) => this.setState({ count: text, rest: text })}
+          onChangeText={(text) => this.setState({ count: text * 1, rest: text * 1 })}
         >{this.state.count}</TextInput>
         <Button onPress={((e) => {
           if (!this.state.capturing) {
@@ -86,13 +92,14 @@ export default class App extends Component {
         }).bind(this)} title={!this.state.capturing ? "开始拍摄" : "暂停拍摄"}
           color="#841584"
           accessibilityLabel={!this.state.capturing ? "开始拍摄" : "暂停拍摄"} />
-        <Button onPress={() => {
-
-        }} title="合成视频"
+        <Button onPress={(() => {
+          var RNMiService = NativeModules.RNMiService;
+          RNMiService.combineMovie(this.state.count);
+        }).bind(this)} title="合成视频"
           color="#841584"
           accessibilityLabel="合成视频" />
         <Text >
-          {'rest:' + this.state.rest}
+          {this.state.msg ? this.state.msg : ('rest:' + this.state.rest)}
         </Text>
       </View>
     );

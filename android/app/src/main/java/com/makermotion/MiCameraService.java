@@ -155,7 +155,6 @@ public class MiCameraService extends AccessibilityService {
         }
         return node;
     }
-
     @Override
     protected boolean onKeyEvent(KeyEvent event) {
         return super.onKeyEvent(event);
