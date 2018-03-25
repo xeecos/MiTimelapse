@@ -74,18 +74,18 @@ export default class App extends Component {
             color="#841584"
             accessibilityLabel="打开辅助设置" />
         </View>
-        <Text >
+        <Text style={{ color: "#c465c4" }}>
           {"间隔:"}
         </Text>
         <TextInput
-          style={{ width: 100, height: 40, borderColor: 'gray', borderWidth: 1 }}
+          style={{ width: 100, height: 40, color: "#c465c4", borderColor: 'gray', borderWidth: 1 }}
           onChangeText={(text) => this.setState({ interval: text * 1 })}
         >{this.state.interval}</TextInput>
-        <Text >
+        <Text style={{ color: "#c465c4" }}>
           {"拍摄数量:"}
         </Text>
         <TextInput
-          style={{ width: 100, height: 40, borderColor: 'gray', borderWidth: 1 }}
+          style={{ width: 100, height: 40, color: "#c465c4", borderColor: 'gray', borderWidth: 1 }}
           onChangeText={(text) => this.setState({ count: text * 1, rest: text * 1 })}
         >{this.state.count}</TextInput>
         <View style={styles.capture}>
@@ -109,10 +109,10 @@ export default class App extends Component {
             color="#841584"
             accessibilityLabel="合成最新视频" />
         </View>
-        <Text >
+        <Text style={{ color: "#c465c4" }}>
           {this.state.msg ? this.state.msg : ('剩余:' + this.state.rest)}
         </Text>
-      </View>
+      </View >
     );
   }
 }
@@ -122,7 +122,7 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: '#F5FCFF',
+    backgroundColor: '#050300',
   },
   service: {
     fontSize: 20,
