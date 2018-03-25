@@ -23,6 +23,8 @@ import java.util.function.Function;
 
 public class MiCameraService extends AccessibilityService {
 
+    private int mCaptureX;
+    private int mCaptureY;
     private int isCapturing = 0;
     @Override
     public void onInterrupt() {  }
@@ -64,19 +66,19 @@ public class MiCameraService extends AccessibilityService {
     private void onCapture(int time){
         DisplayMetrics displayMetrics = getResources().getDisplayMetrics();
         Log.d("tag","height:"+displayMetrics.heightPixels);
-        final int bottomY = displayMetrics.heightPixels * 7 / 8;
+        final int bottomY = displayMetrics.heightPixels * 11 / 12;
         final int centerX = displayMetrics.widthPixels / 2;
         final int centerY = displayMetrics.heightPixels / 2;
-        delayCall(10,new DelayInterface(){
+        delayCall(100,new DelayInterface(){
             @Override
             public void callback() {
                 clickScreen(centerX,centerY);
             }
         });
-        delayCall(50,new DelayInterface(){
+        delayCall(400,new DelayInterface(){
             @Override
             public void callback() {
-                clickScreen(centerX,bottomY);
+                clickScreen(mCaptureX,mCaptureY);
             }
         });
         delayCall((time * 1000+800), new DelayInterface() {
@@ -127,14 +129,19 @@ public class MiCameraService extends AccessibilityService {
 //                node.performAction(AccessibilityNodeInfo.ACTION_CLICK);
                     if(node.getContentDescription()!=null){
                         Log.d("tag", "desc:" + node.getContentDescription());
-//                        if(node.getContentDescription().equals("拍摄")) {
-//                            node.performAction(AccessibilityNodeInfo.ACTION_CLICK);
-//                        }
+                       if(node.getContentDescription().equals("拍摄")) {
+                           node.performAction(AccessibilityNodeInfo.ACTION_CLICK);
+                           Rect rect = new Rect();
+                            node.getBoundsInScreen(rect);
+                            mCaptureX = rect.centerX();
+                            mCaptureY = rect.centerY();
+                       }
                     }
                 }else {
                     Log.d("tag", "text:" + node.getText());
                     final String str  = node.getText().toString();
                     if(str.contains("秒")){
+                        
                         isCapturing = 1;
                         String ss=str.substring(0,str.indexOf("秒"));
                         try {

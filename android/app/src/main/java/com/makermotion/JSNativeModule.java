@@ -9,6 +9,7 @@ import android.provider.MediaStore;
 import android.provider.Settings;
 import android.os.Environment;
 import android.os.Handler;
+import android.os.PowerManager;
 
 import android.support.v4.app.ActivityCompat;
 import android.content.pm.PackageManager;
@@ -21,6 +22,7 @@ import android.graphics.Matrix;
 import com.facebook.react.modules.core.DeviceEventManagerModule;
 import android.net.Uri;
 import android.database.Cursor;
+import android.content.pm.PackageManager;
 
 import org.jcodec.api.SequenceEncoder;
 import org.jcodec.api.android.AndroidSequenceEncoder;
@@ -210,5 +212,24 @@ public class JSNativeModule extends ReactContextBaseJavaModule {
                 sendMessage("合成完成!");
             }
         }).start();
+    }
+    
+    private PowerManager.WakeLock wakeLock;
+    @ReactMethod
+    public void wakeUp() {
+        PowerManager pm = (PowerManager) (getReactApplicationContext().getSystemService(Context.POWER_SERVICE));
+        wakeLock = pm.newWakeLock(PowerManager.SCREEN_DIM_WAKE_LOCK, "==KeepScreenOn==");
+        wakeLock.acquire();
+    }
+    @ReactMethod
+    public void destroy(){
+         if (wakeLock != null) {
+            wakeLock.release();
+            wakeLock = null;
+        }
+    }
+    @ReactMethod
+    public void combineStartrails(){
+        
     }
 }
