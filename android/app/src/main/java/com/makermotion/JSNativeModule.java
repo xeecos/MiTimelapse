@@ -180,7 +180,7 @@ public class JSNativeModule extends ReactContextBaseJavaModule {
                 if (!appDir.exists()) {
                     appDir.mkdir();
                 }
-                sendMessage("start!");
+                sendMessage("开始合成!");
                 String fileName = System.currentTimeMillis() + ".mp4";
                 File temp = new File(appDir, fileName);
                 try {
@@ -192,7 +192,7 @@ public class JSNativeModule extends ReactContextBaseJavaModule {
                         FileInputStream fis = new FileInputStream(list.get(len - 1 - i));
                         Bitmap bitmap = scaleImage(BitmapFactory.decodeStream(fis), 1920, 1080);
                         int progress = (i + 1) * 100 / len;
-                        sendMessage("processing:" + progress + "%");
+                        sendMessage("处理中:" + progress + "%");
                         encoder.encodeImage(bitmap);
                         //                    Log.i("tag", "end processing:" + (i + 1));
                     }
@@ -207,7 +207,7 @@ public class JSNativeModule extends ReactContextBaseJavaModule {
                 } finally {
                     NIOUtils.closeQuietly(out);
                 }
-                sendMessage("finish!");
+                sendMessage("合成完成!");
             }
         }).start();
     }
