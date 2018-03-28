@@ -121,6 +121,14 @@ public class JSNativeModule extends ReactContextBaseJavaModule {
     this.reactContext.startActivity(intent);
   }
   @ReactMethod
+  public void openAlbum() {
+
+    Intent intent = Intent.makeMainSelectorActivity(
+        Intent.ACTION_MAIN, Intent.CATEGORY_APP_GALLERY);
+    ;
+    this.reactContext.startActivity(intent);
+  }
+  @ReactMethod
   public void capture() {
     this.reactContext.startActivity(
         this.reactContext.getPackageManager().getLaunchIntentForPackage(
